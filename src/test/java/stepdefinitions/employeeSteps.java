@@ -1,34 +1,27 @@
 package stepdefinitions;
 
-import pages.HomePage;
-import pages.SearchFunctions;
 import utils.Employee;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
-public class myStepDefs {
-    ArrayList<Employee> employees = new ArrayList<>();
+import static org.assertj.core.api.Assertions.assertThat;
 
-    @Given("user is on the home page")
-    public void userIsOnTheHomePage() {
-        new HomePage().openHomePage();
-    }
+public class employeeSteps {
+    ArrayList<Employee> employees = new ArrayList<>();
 
     @When("I read employee data from CSV file {string}")
     public void iReadCSVFile(String fileName) {
         employees = Employee.getEmployeesFromCSVFile(fileName);
-        Assert.assertTrue(employees.size() > 0, "Expected > 0 employee records; " + employees.size() + " found.");
+        assertThat(employees.size()).isGreaterThan(0);
     }
 
     @When("I read employee data from fixed-length file {string}")
     public void iReadFixedFile(String fileName) {
         employees = Employee.getEmployeesFromFixedFile(fileName);
-        Assert.assertTrue(employees.size() > 0, "Expected > 0 employee records; " + employees.size() + " found.");
+        assertThat(employees.size()).isGreaterThan(0);
     }
 
     @Then("I display Employee records alphabetically by first name")

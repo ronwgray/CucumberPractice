@@ -1,12 +1,13 @@
-package PracticeSoftware.pages.utils;
+package utils;
 
-import java.io.BufferedReader;
-import java.util.ArrayList;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Employee {
 
@@ -31,7 +32,7 @@ public class Employee {
     public static ArrayList<Employee> getEmployeesFromCSVFile(String csvFileName) {
         ArrayList<Employee> employees = new ArrayList<>();
 
-        System.out.println("Reading file: " + csvFileName);
+        System.out.println("Reading CSV file: " + csvFileName);
         try (FileReader fileReader = new FileReader(csvFileName);
              CSVReader reader = new CSVReaderBuilder(fileReader)
                      .withSkipLines(1) // skip the header (first) line
@@ -53,7 +54,7 @@ public class Employee {
     public static ArrayList<Employee> getEmployeesFromFixedFile(String fixedFileName) {
         ArrayList<Employee> employees = new ArrayList<>();
 
-        System.out.println("Reading file: " + fixedFileName);
+        System.out.println("Reading fixed-length file: " + fixedFileName);
         try (BufferedReader br = new BufferedReader(new FileReader(fixedFileName))) {
             String line;
 

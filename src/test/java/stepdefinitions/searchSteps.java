@@ -1,55 +1,64 @@
 package stepdefinitions;
 
-import pages.HomePage;
-import pages.SearchFunctions;
-import utils.Employee;
-import io.cucumber.java.en.Given;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.DataTableType;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.testng.Assert;
+import org.assertj.core.api.SoftAssertions;
+import pages.SearchFunctions;
+import utils.Product;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
-public class myStepDefs {
-    ArrayList<Employee> employees = new ArrayList<>();
-
-    @Given("user is on the home page")
-    public void userIsOnTheHomePage() {
-        new HomePage().openHomePage();
-    }
+public class searchSteps {
 
     @When("I search for product {string}")
     public void iSearchForProduct(String searchText) {
         new SearchFunctions().searchForItem(searchText);
     }
 
-    @Then("I verify that {string} card is displayed")
-    public void iVerifyThatCardIsDisplayed(String cardTitle) {
-        new SearchFunctions().verifyCardTitleDisplayed(cardTitle);
+    @Then("I verify that product {string} is displayed")
+    public void iVerifyThatProductIsDisplayed(String productName) {
+        new SearchFunctions().verifyCardTitleDisplayed(productName);
     }
 
-    @When("I read employee data from CSV file {string}")
-    public void iReadCSVFile(String fileName) {
-        employees = Employee.getEmployeesFromCSVFile(fileName);
-        Assert.assertTrue(employees.size() > 0, "Expected > 0 employee records; " + employees.size() + " found.");
-    }
-
-    @When("I read employee data from fixed-length file {string}")
-    public void iReadFixedFile(String fileName) {
-        employees = Employee.getEmployeesFromFixedFile(fileName);
-        Assert.assertTrue(employees.size() > 0, "Expected > 0 employee records; " + employees.size() + " found.");
-    }
-
-    @Then("I display Employee records alphabetically by first name")
-    public void iDisplayEmployeeRecords() {
-        // take the global employee list and write it out
-        // sort the list by name before returning it
-        employees.sort(Comparator.comparing(Employee::getName));
-        System.out.println("--------------------------------------------------");
-        for (Employee emp : employees) {
-            System.out.println(emp.getName() + ", " + emp.getEmail() + ", " + emp.getAge());
+    @Then("I verify that the following products are displayed:")
+    public void iVerifyThatTheFollowingProductsAreDisplayed(DataTable dataTable) {
+        // dataTable will map elements as String
+        List<Map<String, String>> tableRows = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> tableRow: tableRows) {
+            String productName = "";
+            double productPrice = 0.0;
+            for (Map.Entry<String, String> product : tableRow.entrySet()) {
+                if (product.getKey().equals("Product")) {
+                    productName = product.getValue();
+                } else if (product.getKey().equals("Price")) {
+                    productPrice = Double.parseDouble(product.getValue());
+                }
+            }
+            System.out.println("Product '" + productName + "' is $" + productPrice);
+            new SearchFunctions().verifyCardTitleDisplayed(productName);
         }
-        System.out.println("--------------------------------------------------");
+    }
+
+    // POJO (plain old java object) method...
+    // Create a Product object
+    // Then create a DataTableType in the step specification which gets the data from the Map
+    @DataTableType
+    public Product productEntry(Map<String, String> entry) {
+        // entry.get will get the specified column header - so the column header text has to match!
+        return new Product(
+                entry.get("Product"),
+                Double.parseDouble(entry.get("Price"))
+        );
+    }
+    // Then create a step which gets a List of Product instead of the DataTable
+    @Then("I verify that the following products are displayed POJO:")
+    public void iVerifyThatTheFollowingProductsAreDisplayedPOJO(List<Product> products) {
+        for (Product product : products) {
+            System.out.println("Product '" + product.getName() + "' is $" + product.getPrice());
+            new SearchFunctions().verifyCardTitleDisplayed(product.getName());
+        }
     }
 }
